@@ -18,6 +18,8 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <sensor_msgs/Joy.h>
+
 
 UNITREE_LEGGED_SDK::BmsCmd rosMsg2Cmd(const unitree_legged_msgs::BmsCmd &msg)
 {
@@ -327,6 +329,61 @@ UNITREE_LEGGED_SDK::HighCmd rosMsg2Cmd(const geometry_msgs::Twist::ConstPtr &msg
 
     cmd.mode = 2;
     cmd.gaitType = 1;
+
+    return cmd;
+}
+
+UNITREE_LEGGED_SDK::HighCmd rosMsg2Cmd(const sensor_msgs::Joy::ConstPtr &msg)
+{
+    const float max_speed = 0.5f;
+    const float max_rot = 1.0f;
+    bool flg_in = msg->axes[0] != 0 | msg->axes[1] != 0 | msg->axes[2] != 0;
+    UNITREE_LEGGED_SDK::HighCmd cmd;
+
+    cmd.head[0] = 0xFE;
+    cmd.head[1] = 0xEF;
+    cmd.levelFlag = UNITREE_LEGGED_SDK::HIGHLEVEL;
+    cmd.mode = 0;
+    cmd.gaitType = 0;
+    cmd.speedLevel = 0;
+    cmd.footRaiseHeight = 0;
+    cmd.bodyHeight = 0;
+    cmd.euler[0] = 0;
+    cmd.euler[1] = 0;
+    cmd.euler[2] = 0;
+    cmd.velocity[0] = 0.0f;
+    cmd.velocity[1] = 0.0f;
+    cmd.yawSpeed = 0.0f;
+    cmd.reserve = 0;
+
+    if (flg_in)
+    {
+	// set state 'walk'  
+	cmd.mode = 2;
+
+	if (msg->buttons[0]) cmd.gaitType = 3;
+	else if (msg->buttons[1]) cmd.gaitType = 4;
+	else cmd.gaitType = 1;
+
+        cmd.velocity[0] = std::min<float>(std::max<float>(-max_speed, msg->axes[1]), max_speed);
+        cmd.velocity[1] = std::min<float>(std::max<float>(-max_speed, msg->axes[0]), max_speed);
+        cmd.yawSpeed = std::min<float>(std::max<float>(-max_rot, msg->axes[2]), max_rot);
+    }
+    else
+    {
+	// set state 'stand'
+	cmd.mode = 1;
+	cmd.gaitType = 0;
+
+	cmd.euler[1] = msg->axes[5] / 5;
+	cmd.euler[2] = msg->axes[4] / 5;
+
+	if (msg->buttons[2]) cmd.mode = 5;  // stand down
+	else if (msg->buttons[4]) cmd.mode = 6;  // stand up
+
+    }
+
+    if (msg->buttons[10]) cmd.mode = 7;  // dumping
 
     return cmd;
 }
