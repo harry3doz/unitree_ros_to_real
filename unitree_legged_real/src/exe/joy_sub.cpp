@@ -65,7 +65,7 @@ public:
 
 Custom custom;
 
-ros::Subscriber sub_cmd_vel;
+ros::Subscriber sub_joy;
 ros::Publisher pub_high;
 
 long joy_count = 0;
@@ -86,13 +86,13 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
 
     pub_high.publish(high_state_ros);
 
-    printf("cmdVelCallback ending!\t%ld\n\n", joy_count++);
+    printf("joyCallback ending!\t%ld\n\n", joy_count++);
 }
     
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "twist_sub");
+    ros::init(argc, argv, "joy_sub");
 
     ros::NodeHandle nh;
 

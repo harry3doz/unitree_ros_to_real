@@ -335,7 +335,7 @@ UNITREE_LEGGED_SDK::HighCmd rosMsg2Cmd(const geometry_msgs::Twist::ConstPtr &msg
 
 UNITREE_LEGGED_SDK::HighCmd rosMsg2Cmd(const sensor_msgs::Joy::ConstPtr &msg)
 {
-    const float max_speed = 0.5f;
+    const float max_speed = 0.4f;
     const float max_rot = 1.0f;
     bool flg_in = msg->axes[0] != 0 | msg->axes[1] != 0 | msg->axes[2] != 0;
     UNITREE_LEGGED_SDK::HighCmd cmd;
@@ -383,7 +383,7 @@ UNITREE_LEGGED_SDK::HighCmd rosMsg2Cmd(const sensor_msgs::Joy::ConstPtr &msg)
 
     }
 
-    if (msg->buttons[10]) cmd.mode = 7;  // dumping
+    if (msg->buttons[3]) cmd.mode = 7;  // dumping
 
     return cmd;
 }
