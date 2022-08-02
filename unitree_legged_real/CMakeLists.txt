@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
     geometry_msgs
     sensor_msgs
     unitree_legged_msgs
+    tf
 )
 
 catkin_package()
