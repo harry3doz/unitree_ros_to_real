@@ -75,6 +75,7 @@ ros::Publisher pub_cmd_vel;
 long high_count = 0;
 long low_count = 0;
 long cmd_vel_count = 0;
+long timer_count = 0;
 
 void highCmdCallback(const unitree_legged_msgs::HighCmd::ConstPtr &msg)
 {
@@ -125,6 +126,27 @@ void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &msg)
 
     printf("cmdVelCallback ending !\t%ld\n\n", cmd_vel_count++);
 }
+
+/*
+// ros timer event
+*/
+void timerCallback(const ros::TimerEvent&)
+{
+    printf("timerCallback is running !\t%ld\n", timer_count);
+
+    // get SDK high_state and publish ros msg
+    unitree_legged_msgs::HighState high_state_ros;
+    high_state_ros = state2rosMsg(custom.high_state);
+    pub_high.publish(high_state_ros);
+
+    printf("timerCallback\t%ld\n\n", timer_count++);
+}
+
+
+
+/*
+// main function
+*/
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "ros_udp");
@@ -152,6 +174,8 @@ int main(int argc, char **argv)
         pub_high = nh.advertise<unitree_legged_msgs::HighState>("high_state", 1);
         
         sub_cmd_vel = nh.subscribe("cmd_vel", 1, cmdVelCallback);
+        
+        ros::Timer timer = nh.createTimer(ros::Duration(0.1), timerCallback);
 
         LoopFunc loop_udpSend("high_udp_send", 0.002, 3, boost::bind(&Custom::highUdpSend, &custom));
         LoopFunc loop_udpRecv("high_udp_recv", 0.002, 3, boost::bind(&Custom::highUdpRecv, &custom));
