@@ -73,3 +73,7 @@ add_dependencies(joy_sub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_T
 add_executable(joint_simulator src/exe/joint_simulator.cpp)
 target_link_libraries(joint_simulator ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(joint_simulator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(wireless_controller src/exe/wireless_controller.cpp)
+target_link_libraries(wireless_controller ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(wireless_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

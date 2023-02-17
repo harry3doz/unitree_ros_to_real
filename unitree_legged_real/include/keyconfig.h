@@ -30,6 +30,21 @@ public:
     DEFAULT
   };
 
+  static const Type wpcfg(int input)
+  {
+
+    static const std::map<int, Type> name= 
+    {
+      {1, WP_NEXT},
+      {2, WP_PREV},
+      {16, NAV_START},
+      {32, NAV_STOP},
+    };
+
+    if (name.find(input) != name.end()) return name.at(input);
+    else return DEFAULT;
+  }
+
   static const Type wpcfg(char input)
   {
 
@@ -59,6 +74,7 @@ public:
     if (name.find(input) != name.end()) return name.at(input);
     else return DEFAULT;
   }
+
 
   Type state;
 

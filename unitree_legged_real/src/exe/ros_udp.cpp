@@ -132,14 +132,14 @@ void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &msg)
 */
 void timerCallback(const ros::TimerEvent&)
 {
-    printf("timerCallback is running !\t%ld\n", timer_count);
+    //printf("timerCallback is running !\t%ld\n", timer_count);
 
     // get SDK high_state and publish ros msg
     unitree_legged_msgs::HighState high_state_ros;
     high_state_ros = state2rosMsg(custom.high_state);
     pub_high.publish(high_state_ros);
 
-    printf("timerCallback\t%ld\n\n", timer_count++);
+    //printf("timerCallback\t%ld\n\n", timer_count++);
 }
 
 
