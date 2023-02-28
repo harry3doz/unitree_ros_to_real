@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
     unitree_legged_msgs
     std_srvs
     tf
+    multimap_server_py
+    unitree_nav
 )
 
 catkin_package()

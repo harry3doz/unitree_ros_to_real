@@ -18,6 +18,9 @@
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include "unitree_legged_sdk/joystick.h"
 
+#include <multimap_server_py/MapFilePath.h>
+#include <unitree_nav/FilePath.h>
+
 
 using namespace UNITREE_LEGGED_SDK;
 
@@ -31,6 +34,7 @@ public:
   ros::Subscriber high_sub;
   ros::Publisher cmd_pub; 
 
+  // wp handler
   ros::ServiceClient wpadd_cli;
   ros::ServiceClient wpdel_cli;
   ros::ServiceClient wpclear_cli;
@@ -44,8 +48,14 @@ public:
   ros::ServiceClient initpos_cli;
   ros::ServiceClient wpchange_cli;
 
+  // map handler
+  ros::ServiceClient mapchange_cli;
+
   geometry_msgs::Twist vel_cmd;
+
   std_srvs::Empty srv;
+  multimap_server_py::MapFilePath map_srv;
+  unitree_nav::FilePath wp_srv;
 
   xRockerBtnDataStruct keydata;
 
@@ -63,11 +73,13 @@ public:
     this->wpdn_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/wp_target_down");
     this->startnav_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/start_nav");
     this->stopnav_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/stop_nav");
-    this->wpsave_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/save_wp");
-    this->wpload_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/load_wp");
+    this->wpsave_cli = this->nh.serviceClient<unitree_nav::FilePath>("wp_manager/save_wp");
+    this->wpload_cli = this->nh.serviceClient<unitree_nav::FilePath>("wp_manager/load_wp");
     this->wpinit_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/reset_wp_pos");
     this->initpos_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/init_pos_switch");
     this->wpchange_cli = this->nh.serviceClient<std_srvs::Empty>("wp_manager/wp_name_change");
+
+    this->mapchange_cli = this->nh.serviceClient<multimap_server_py::MapFilePath>("multimap_server/load_map");
   }
   
 
@@ -124,8 +136,31 @@ public:
       }
       if ((int)keydata.btn.components.Y == 1)
       {
-        this->initpos_cli.call(this->srv);
-        ROS_INFO("[WP] init/wp switch");
+        //this->initpos_cli.call(this->srv);
+        //ROS_INFO("[WP] init/wp switch");
+
+        map_srv.request.map_file_path = "/home/unitree/hitz_guidenav/src/unitree_nav/map/sastena/2nd.yaml";
+        map_srv.request.ns = "multimap_server/map";
+        map_srv.request.map_frame = "floor_map";
+        if(this->mapchange_cli.call(this->map_srv))
+        {
+          ROS_INFO("[OK] change map");
+        }
+        else
+        {
+          ROS_ERROR("Failed to call map load service.");
+        }
+
+        wp_srv.request.file_name = "/home/unitree/hitz_guidenav/src/unitree_nav/waypoint/5th.yaml";
+        if(this->wpload_cli.call(this->wp_srv))
+        {
+          ROS_INFO("[OK] load waypoints from: %s", wp_srv.response.file_name.c_str());
+        }
+        else
+        {
+          ROS_ERROR("Failed to call wp load service.");
+        }
+
       }
       if ((int)keydata.btn.components.R2 == 1)
       {
@@ -134,13 +169,29 @@ public:
       }
       if ((int)keydata.btn.components.start == 1)
       {
-        this->wpsave_cli.call(this->srv);
-        ROS_INFO("[WP] save");
+        wp_srv.request.file_name = "/home/unitree/hitz_guidenav/src/unitree_nav/waypoint/waypoints.yaml";
+
+        if(this->wpsave_cli.call(this->wp_srv))
+        {
+          ROS_INFO("[OK] save waypoints to: %s", wp_srv.response.file_name.c_str());
+        }
+        else
+        {
+          ROS_ERROR("Failed to call wp save service.");
+        }
       }
       if ((int)keydata.btn.components.select == 1)
       {
-        this->wpload_cli.call(this->srv);
-        ROS_INFO("[WP] load");
+        wp_srv.request.file_name = "/home/unitree/hitz_guidenav/src/unitree_nav/waypoint/waypoints.yaml";
+
+        if(this->wpload_cli.call(this->wp_srv))
+        {
+          ROS_INFO("[OK] load waypoints from: %s", wp_srv.response.file_name.c_str());
+        }
+        else
+        {
+          ROS_ERROR("Failed to call wp load service.");
+        }
       }
 
     }
