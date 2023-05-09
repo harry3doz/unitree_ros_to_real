@@ -4,7 +4,7 @@
   <version>0.0.0</version>
   <description>The unitree_legged_real package</description>
 
-  <maintainer email="hiroyuki.kaneda@techshare.co.jp">khiro-ts</maintainer>
+  <maintainer email="k.hiroyuki.perc@gmail.com">khiro</maintainer>
   <license>TODO</license>
 
   <buildtool_depend>catkin</buildtool_depend>
@@ -15,6 +15,7 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>tf</depend>
   <depend>unitree_legged_msgs</depend>
   <depend>eigen</depend>

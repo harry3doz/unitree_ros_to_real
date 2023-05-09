@@ -7,11 +7,10 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     geometry_msgs
     sensor_msgs
+    nav_msgs
     unitree_legged_msgs
     std_srvs
     tf
-    multimap_server_py
-    unitree_nav
 )
 
 catkin_package()
@@ -76,6 +75,6 @@ add_executable(joint_simulator src/exe/joint_simulator.cpp)
 target_link_libraries(joint_simulator ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(joint_simulator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(wireless_controller src/exe/wireless_controller.cpp)
-target_link_libraries(wireless_controller ${EXTRA_LIBS} ${catkin_LIBRARIES})
-add_dependencies(wireless_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_executable(wireless_controller src/exe/wireless_controller.cpp)
+#target_link_libraries(wireless_controller ${EXTRA_LIBS} ${catkin_LIBRARIES})
+#add_dependencies(wireless_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
