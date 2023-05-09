@@ -7,9 +7,11 @@
 #include "convert.h"
 #include <chrono>
 #include <pthread.h>
+
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Imu.h>
 #include <nav_msgs/Odometry.h>
+#include <tf/transform_broadcaster.h>
 
 using namespace UNITREE_LEGGED_SDK;
 class Custom
@@ -75,6 +77,8 @@ ros::Publisher pub_low;
 ros::Publisher pub_cmd_vel;
 ros::Publisher pub_imu;
 ros::Publisher pub_odom;
+
+tf::TransformBroadcaster odom_broadcaster;
 
 long high_count = 0;
 long low_count = 0;
@@ -175,7 +179,7 @@ void timerCallback(const ros::TimerEvent&)
     msg_odom.header.seq = timer_count;
     msg_odom.header.stamp = current_time;
     msg_odom.header.frame_id = "odom";
-    msg_odom.header.frame_id = "base_link";
+    msg_odom.child_frame_id = "base_link";
 
     msg_odom.pose.pose.position.x = custom.high_state.position[0];
     msg_odom.pose.pose.position.y = custom.high_state.position[1];
@@ -191,6 +195,22 @@ void timerCallback(const ros::TimerEvent&)
     msg_odom.twist.twist.angular.z = custom.high_state.velocity[2];
 
     pub_odom.publish(msg_odom);
+
+    // tf transform
+    geometry_msgs::TransformStamped odom_trans;
+    odom_trans.header.stamp = current_time;
+    odom_trans.header.frame_id = "odom";
+    odom_trans.child_frame_id = "base_link";
+
+    odom_trans.transform.translation.x = custom.high_state.position[0];
+    odom_trans.transform.translation.y = custom.high_state.position[1];
+    odom_trans.transform.translation.z = custom.high_state.position[2];
+    odom_trans.transform.rotation.w = custom.high_state.imu.quaternion[0];
+    odom_trans.transform.rotation.x = custom.high_state.imu.quaternion[1];
+    odom_trans.transform.rotation.y = custom.high_state.imu.quaternion[2];
+    odom_trans.transform.rotation.z = custom.high_state.imu.quaternion[3];
+
+    odom_broadcaster.sendTransform(odom_trans);
 
     //printf("timerCallback\t%ld\n\n", timer_count++);
 }
@@ -227,6 +247,9 @@ int main(int argc, char **argv)
         pub_high = nh.advertise<unitree_legged_msgs::HighState>("high_state", 1);
         
         sub_cmd_vel = nh.subscribe("cmd_vel", 1, cmdVelCallback);
+
+        pub_imu = nh.advertise<sensor_msgs::Imu>("go1/imu", 1);
+        pub_odom = nh.advertise<nav_msgs::Odometry>("go1/odom", 1);
         
         ros::Timer timer = nh.createTimer(ros::Duration(0.1), timerCallback);
 
