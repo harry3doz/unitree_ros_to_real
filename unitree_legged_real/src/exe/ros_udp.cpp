@@ -78,7 +78,6 @@ ros::Publisher pub_cmd_vel;
 ros::Publisher pub_imu;
 ros::Publisher pub_odom;
 
-tf::TransformBroadcaster odom_broadcaster;
 
 long high_count = 0;
 long low_count = 0;
@@ -138,7 +137,7 @@ void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &msg)
 /*
 // ros timer event
 */
-void timerCallback(const ros::TimerEvent&)
+void timerCallback(const ros::TimerEvent &event)
 {
     //printf("timerCallback is running !\t%ld\n", timer_count);
 
@@ -148,9 +147,8 @@ void timerCallback(const ros::TimerEvent&)
     pub_high.publish(high_state_ros);
 
     // compute imu from high_state lcm msg
-    ros::Time current_time;
 
-    current_time = ros::Time::now();
+    ros::Time current_time = event.current_real;
 
     sensor_msgs::Imu msg_imu;
 
@@ -209,6 +207,8 @@ void timerCallback(const ros::TimerEvent&)
     odom_trans.transform.rotation.x = custom.high_state.imu.quaternion[1];
     odom_trans.transform.rotation.y = custom.high_state.imu.quaternion[2];
     odom_trans.transform.rotation.z = custom.high_state.imu.quaternion[3];
+
+    tf::TransformBroadcaster odom_broadcaster;
 
     odom_broadcaster.sendTransform(odom_trans);
 
