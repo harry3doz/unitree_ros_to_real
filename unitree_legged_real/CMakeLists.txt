@@ -6,8 +6,11 @@ set(CMAKE_CXX_FLAGS "-O3 -fPIC -std=c++11")
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     geometry_msgs
+    sensor_msgs
+    nav_msgs
     unitree_legged_msgs
     unitree_legged_sdk
+    tf
 )
 
 catkin_package()
